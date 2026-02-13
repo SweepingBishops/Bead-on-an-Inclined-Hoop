@@ -167,7 +167,7 @@ if __name__ == "__main__":
             )
 
     plt.figure()
-    plt.scatter(theta, p, s=0.2)
+    plt.scatter(theta, p, s=0.4)
     plt.xlabel(r"$\theta$")
     plt.ylabel(r"$\dot{\theta}$")
     plt.grid(True)
