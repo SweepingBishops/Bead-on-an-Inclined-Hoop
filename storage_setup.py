@@ -129,11 +129,14 @@ def get_or_create_group(parent, name, attrs=None):
     Gets or creates a group.
     parent: a h5 file or group
     name: string that sets the name of the group
-    attrs: dictionary of attributes to be added to the new group
-           does nothing if the group already exists
+    attrs: dictionary of attributes to be added to the group
     """
     if name in parent:
-        return parent[name]
+        group = parent[name]
+        if attrs:
+            for k,v in attrs.items():
+                group.attrs[k] = v
+        return group
     else:
         group = parent.create_group(name)
         for k,v in parent.attrs.items():
@@ -149,8 +152,7 @@ def create_or_overwrite_dataset(parent, name, data, attrs=None):
     parent: h5 group
     name: name of the dataset (string)
     data: numpy array to put in the dataset
-    attrs: dictionary of attributes to be added if the dataset is created
-           does nothing if overwriting
+    attrs: dictionary of attributes to be added to the dataset
     """
     if name in parent:
         del parent[name]
