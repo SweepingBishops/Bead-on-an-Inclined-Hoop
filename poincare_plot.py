@@ -7,8 +7,6 @@ plots_dir = "Plots/poincare_sections/"
 
 with h5py.File("Data/poincare_trajectories.h5", "r") as file:
     for alpha_grp in file.values():
-        if not np.isclose(alpha_grp.attrs["alpha"], np.deg2rad(5)):
-            continue
         for omega_grp in alpha_grp.values():
             for init_grp in omega_grp.values():
                 plt.figure()
@@ -25,8 +23,9 @@ with h5py.File("Data/poincare_trajectories.h5", "r") as file:
                 p0 = init_grp.attrs["p0"]
                 plt.title(
                         f"Poincaré section\n"
-                        rf"$\alpha = {alpha:.1f}^\circ,\ \omega = {omega:.2f},\ $"
+                        rf"$\alpha = {alpha:.1f}^\circ,\ \omega = {omega:.2f}\,rad/s,\ $"
                         rf"$\theta_0 = {theta0:.1f}^\circ,\ p_0 = {p0}$"
                     )
 
                 plt.savefig(plots_dir + f"{alpha:04.1f}_{omega:05.2f}" + ".svg")
+                plt.close()
