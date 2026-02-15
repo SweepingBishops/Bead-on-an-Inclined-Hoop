@@ -181,13 +181,13 @@ def setup_file(path, integrator, data_type, alphas, omegas, dt=0.05):
         file.attrs["dt_units"] = "seconds"
         file.attrs["alpha_units"] = "radians"
         file.attrs["omega_units"] = "rad/s"
-        for i,alpha in enumerate(alphas):
-            group = get_or_create_group(file, f"alpha{i}", attrs={"alpha": alpha})
-            for j,omega in enumerate(omegas):
-                grp = get_or_create_group(group, f"omega{j}", attrs={"omega": omega, "T": 2*np.pi/omega if omega != 0 else None})
+        for alpha in alphas:
+            group = get_or_create_group(file, f"alpha{alpha:05.2f}", attrs={"alpha": np.deg2rad(alpha)})
+            for omega in omegas:
+                grp = get_or_create_group(group, f"omega{omega:06.3f}", attrs={"omega": omega, "T": 2*np.pi/omega if omega != 0 else None})
 
 if __name__ == "__main__":
-    alphas = [np.deg2rad(i) for i in range(1,16)]
+    alphas = [i for i in range(1,16)]
     omegas = [i for i in range(1,11)]
 
     setup_file("Data/trajectories.h5", "velocity_verlet", "Full trajectories, non-dissipative", alphas, omegas)
