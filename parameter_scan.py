@@ -11,8 +11,8 @@ def compute_poincare_rk(params):
     alpha, omega, theta0, p0, strob, gamma = params
 
     T = 2*np.pi/omega
-    discard = min(25*T, 1_000)  # Discard initial transient behaviour
-    t_fin = min(discard + 50*T, 5_000)
+    discard = min(100*T, 1_000)  # Discard initial transient behaviour
+    t_fin = min(discard + 200*T, 5_000)
     # Note that this won't get good results for very small omega
 
     t, theta, p = time_evolve_rk(
@@ -79,10 +79,17 @@ def param_scan(theta0, p0, alphas_omegas, strob=True, gamma=0):
 
                 alpha_grp = storage_setup.get_or_create_group(file, f"alpha{np.rad2deg(alpha):05.2f}", attrs={"alpha":alpha})
                 omega_grp = storage_setup.get_or_create_group(alpha_grp, f"omega{omega:06.3f}", attrs={"omega":omega})
-                init_grp = storage_setup.get_or_create_group(omega_grp, f"init{np.rad2deg(theta0):04.1f}_{p0:04.1f}", attrs={
-                    "theta0": theta0,
-                    "p0": p0,
-                    })
+                if dt is not None:
+                    init_grp = storage_setup.get_or_create_group(omega_grp, f"init{np.rad2deg(theta0):04.1f}_{p0:04.1f}", attrs={
+                        "theta0": theta0,
+                        "p0": p0,
+                        })
+                else:
+                    init_grp = storage_setup.get_or_create_group(omega_grp, f"init{np.rad2deg(theta0):04.1f}_{p0:04.1f}_{gamma}", attrs={
+                        "theta0": theta0,
+                        "p0": p0,
+                        })
+
 
                 if strob:
                     init_grp.attrs["T"] = T
