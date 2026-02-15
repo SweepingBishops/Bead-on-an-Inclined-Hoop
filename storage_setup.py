@@ -35,21 +35,21 @@ Each HDF5 file follows the same logical hierarchy:
     │   ├── alpha_units
     │   ├── omega_units
     │
-    ├── alpha_0
+    ├── alpha0
     │   ├── (attrs: alpha)
-    │   ├── omega_0
+    │   ├── omega0
     │   │   ├── (attrs: omega)
     │   │   ├── init_0
     │   │   │   ├── theta   (dataset)
     │   │   │   └── p       (dataset)
     │   │   └── init_1
-    │   └── omega_1
+    │   └── omega1
     │
-    └── alpha_1
+    └── alpha1
 
 Hierarchy semantics:
-- alpha_i   : one value of the control parameter alpha
-- omega_j   : one value of the drive frequency omega
+- alphai   : one value of the control parameter alpha
+- omegaj   : one value of the drive frequency omega
 - init_k    : one initial condition
 - theta, p  : phase-space data
 
@@ -121,7 +121,7 @@ Important Notes
 """
 
 import os.path
-from numpy import pi
+import numpy as np
 import h5py
 
 def get_or_create_group(parent, name, attrs=None):
@@ -129,11 +129,14 @@ def get_or_create_group(parent, name, attrs=None):
     Gets or creates a group.
     parent: a h5 file or group
     name: string that sets the name of the group
-    attrs: dictionary of attributes to be added to the new group
-           does nothing if the group already exists
+    attrs: dictionary of attributes to be added to the group
     """
     if name in parent:
-        return parent[name]
+        group = parent[name]
+        if attrs:
+            for k,v in attrs.items():
+                group.attrs[k] = v
+        return group
     else:
         group = parent.create_group(name)
         for k,v in parent.attrs.items():
@@ -149,8 +152,7 @@ def create_or_overwrite_dataset(parent, name, data, attrs=None):
     parent: h5 group
     name: name of the dataset (string)
     data: numpy array to put in the dataset
-    attrs: dictionary of attributes to be added if the dataset is created
-           does nothing if overwriting
+    attrs: dictionary of attributes to be added to the dataset
     """
     if name in parent:
         del parent[name]
@@ -166,7 +168,7 @@ def create_or_overwrite_dataset(parent, name, data, attrs=None):
     return ds
 
 
-def setup_file(path, integrator, data_type, alphas, omegas):
+def setup_file(path, integrator, data_type, alphas, omegas, dt=0.05):
     if os.path.isfile(path):
         print(f"{path} already exists. Skipping...")
         return
@@ -175,14 +177,14 @@ def setup_file(path, integrator, data_type, alphas, omegas):
     with h5py.File(path, "w") as file:
         file.attrs["integrator"] = integrator
         file.attrs["data_type"] = data_type
-        file.attrs["dt"] = 0.05
+        file.attrs["dt"] = dt
         file.attrs["dt_units"] = "seconds"
-        file.attrs["alpha_units"] = "degrees"
+        file.attrs["alpha_units"] = "radians"
         file.attrs["omega_units"] = "rad/s"
         for alpha in alphas:
-            group = get_or_create_group(file, f"alpha{alpha}", attrs={"alpha": alpha})
+            group = get_or_create_group(file, f"alpha{alpha:05.2f}", attrs={"alpha": np.deg2rad(alpha)})
             for omega in omegas:
-                grp = get_or_create_group(group, f"omega{omega}", attrs={"omega": omega, "T": 2*pi/omega})
+                grp = get_or_create_group(group, f"omega{omega:06.3f}", attrs={"omega": omega, "T": 2*np.pi/omega if omega != 0 else None})
 
 if __name__ == "__main__":
     alphas = [i for i in range(1,16)]
