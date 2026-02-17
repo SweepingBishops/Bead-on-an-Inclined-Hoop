@@ -1,0 +1,76 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{braket}
+\usepackage{physics}
+\geometry{a4paper, margin=1in}
+
+\title{Quantum Analogue of Bead on a Rotating Hoop}
+\author{Ashlin V Thomas}
+\date{}
+
+\begin{document}
+\maketitle
+\section{Introduction}
+The classical problem of a bead on a rotating hoop is a well-known problem in classical mechanics, nonlinear dynamics, and bifurcation theory. 
+In this problem, a bead is constrained to move on a circular hoop that is rotating about a vertical axis. 
+The model attracted significant attention due to the appearance of non-trivial equilibrium points appearning as the angular velocity of the hoop is increased.
+This phenomenon is a classical example of a pitchfork bifurcation, and has been studied extensively in the context of classical mechanics.
+In this article, we will explore the quantum analogue of this problem, where we will consider a quantum particle constrained to move on a rotating hoop.
+
+\section{Classical Problem}
+In the classical problem, we consider a bead of mass $m$ constrained to move on a circular hoop of radius $R$ that is rotating with a constant angular velocity $\omega$ about a vertical axis.
+The position of the bead can be described by the angle $\theta$ it makes with the vertical axis. 
+The Hamiltonian of the system can be written as:
+\begin{equation}
+H = \frac{p_\theta^2}{2mR^2} - mgR \cos\theta - \frac{1}{2} m R^2 \omega^2 \sin^2\theta \label{classical Hamiltonian}
+\end{equation}
+where $p_\theta$ is the conjugate momentum to $\theta$.
+The equilibrium points of the system can be found by setting the derivative of the potential energy to zero, which leads to the condition:
+\begin{equation}
+    \theta^* \in  \begin{cases}
+        0, & \text{if } \omega < \sqrt{\frac{g}{R}} \\
+        \{ 0, \pm \arccos\left(\frac{g}{R\omega^2}\right) \}, & \text{if } \omega > \sqrt{\frac{g}{R}}
+    \end{cases}
+\end{equation}
+This indicates that for $\omega < \sqrt{\frac{g}{R}}$, there is only one equilibrium point at $\theta = 0$, which is stable. 
+However, as $\omega$ increases beyond $\sqrt{\frac{g}{R}}$, two additional equilibrium points appear at $\theta = \pm \arccos\left(\frac{g}{R\omega^2}\right)$, which are stable, while the original equilibrium point at $\theta = 0$ becomes unstable. 
+This is a classic example of a pitchfork bifurcation.   
+
+\section{Quantum Analogue}
+In the quantum analogue of this problem, we consider a quantum particle of mass $m$ constrained to move on a circular hoop of radius $R$ that is rotating with a constant angular velocity $\omega$ about a vertical axis. 
+We quantize the system by promoting $\theta$ and $p_\theta$ to operators that satisfy the canonical commutation relation:
+\begin{equation}
+    \theta \to \hat{\theta}, \quad p_\theta \to \hat{p}_\theta = -i\hbar \frac{\partial}{\partial \theta}, \quad [\hat{\theta}, \hat{p}_\theta] = i\hbar
+\end{equation}
+The quantum Hamiltonian can be written as:
+\begin{equation}
+\hat{H} = -\frac{\hbar^2}{2mR^2} \frac{\partial^2}{\partial \theta^2} - mgR \cos\hat{\theta} - \frac{1}{2} m R^2 \omega^2 \sin^2\hat{\theta} \label{quantum Hamiltonian}
+\end{equation}
+Let us define $U_0 = -\frac{1}{2 m R^2}$, $U_1 = -mgR$, and $U_2 = -\frac{1}{2} m R^2 \omega^2$.
+The Hamiltonian can then be expressed as:
+\begin{equation}
+\hat{H} = U_0 p_\theta^2+ U_1 \cos\hat{\theta} + U_2 \sin^2\hat{\theta}
+\end{equation}
+
+\newpage
+Let us rewrite the Hamiltonian in the angular momentum basis. The basis states are $\ket{n}$, where $n$ is an integer representing the angular momentum quantum number.
+The action of the operators on the basis states is given by:
+\begin{equation}
+\hat{\theta} \ket{n} = i \frac{\partial}{\partial n} \ket{n}, \quad \hat{p}_\theta \ket{n} = n \hbar \ket{n}
+\end{equation}
+The matrix elements of the Hamiltonian in this basis can be computed as follows:
+\begin{equation}
+\bra{m} \hat{H} \ket{n} = U_0 n^2 \hbar^2 \delta_{mn} + \frac{U_1}{2} (\delta_{m,n+1} + \delta_{m,n-1}) - \frac{U_2}{4} (\delta_{m,n+2} - 2\delta_{mn} + \delta_{m,n-2})
+\end{equation}
+Let us define $U= U_0 \hbar^2$, $t_1 = -\frac{U_1}{2}$ and $t_2 = \frac{U_2}{4}$, and rewrite the Hamiltonian in the angular momentum basis as:
+\begin{equation}
+\hat{H} = \sum_{n=-\infty}^{\infty}  (U n^2 - 2 t_2)  \ket{n}\bra{n} +  (t_1 \ket{n}\bra{n+1} + t_2 \ket{n}\bra{n+2} + h.c. )
+\end{equation}
+
+This Hamiltonian can be interpreted as a tight-binding model on a one-dimensional lattice with nearest-neighbor and next-nearest-neighbor hopping terms, as well as an on-site potential which is a discrete version of the quantum harmonic oscillator potential.
+
+\end{document}
