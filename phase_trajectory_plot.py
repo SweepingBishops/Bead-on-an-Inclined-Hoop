@@ -9,8 +9,10 @@ phase_plots_path = "Plots/phase_plots/"
 time_plots_path = "Plots/time_series_plots/"
 
 with h5py.File(data_file_path, "r") as file:
-    alphas = [i for i in range(16)]
-    omegas = [i for i in range(1,11)]
+    # alphas = [i for i in range(16)]
+    # omegas = [i for i in range(1,11)]
+    alphas = [10,15]
+    omegas = [4,5, 6]
     for alpha_val in alphas:
         for omega in omegas:
             for init_grp in file[f"alpha{alpha_val:05.2f}/omega{omega:06.3f}"].values():
@@ -38,6 +40,7 @@ with h5py.File(data_file_path, "r") as file:
                           )
 
                 plt.savefig(phase_plots_path + dissip + file_name, bbox_inches="tight")
+                plt.show()
                 plt.close()
                 
                 if "dissip" not in data_file_path:
@@ -49,7 +52,7 @@ with h5py.File(data_file_path, "r") as file:
                 plt.plot(t, theta, color="navy")
                 plt.xlabel(r"$t\,(sec)$")
                 plt.ylabel(r"$\theta\,(rad)$")
-                plt.ylim(-np.pi/2, np.pi/2)
+                plt.ylim(-np.pi, np.pi)
                 plt.title(r"$\theta\,vs. t$"
                           "\n"
                           rf"$\alpha={np.rad2deg(alpha):03.1f}^\circ\, \omega={omega:03.1f}$"
@@ -57,6 +60,7 @@ with h5py.File(data_file_path, "r") as file:
                           rf"$\theta_0={np.rad2deg(theta0):04.1f}^\circ\, p_0={p0:04.1f}$"
                           )
                 plt.savefig(time_plots_path + dissip + file_name, bbox_inches="tight")
+                plt.show()
                 plt.close()
-                #print(dissip + file_name + " Done")
+                print(dissip + file_name + " Done")
                 print(init_grp.name)

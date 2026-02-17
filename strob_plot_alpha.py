@@ -6,16 +6,15 @@ import matplotlib.pyplot as plt
 plots_dir = "Plots/strob_plots_varying_alpha/"
 
 with h5py.File("Data/dissip_trajectories.h5", "r") as file:
-    alphas_deg = np.arange(0,15,0.1)
+    alphas_deg = np.arange(0,90,0.2)
     omegas = [i for i in range(1,11)]
     #omegas = [5]
-
 
     for omega in omegas:
         alpha_array = list()
         theta_array = list()
         for alpha in alphas_deg:
-            grp = file[f"alpha{alpha:05.2f}/omega{omega:06.3f}/init00.0_00.0"]
+            grp = file[f"alpha{alpha:05.2f}/omega{omega:06.3f}/init00.0_00.0_0.1"]
 
             theta = grp["theta"][:]
             t = grp["t"][:]
@@ -25,7 +24,7 @@ with h5py.File("Data/dissip_trajectories.h5", "r") as file:
             T = 2*np.pi/omega
             nT = np.round(t / T).astype(int)
             mask = np.abs(t - nT*T) < dt_estimate/2
-            theta = theta[mask]
+            theta = theta[mask][-50:]
 
 
             alpha = [alpha]*np.size(theta)
