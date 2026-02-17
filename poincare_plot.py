@@ -4,14 +4,15 @@ import h5py
 import numpy as np
 
 plots_dir = "Plots/poincare_sections/"
+dissip = ""
 
-with h5py.File("Data/dissip_trajectories.h5", "r") as file:
+with h5py.File(f"Data/{dissip}trajectories.h5", "r") as file:
     alphas_deg = [15]
-    omegas = [6]
+    omegas = [i for i in range(1,11)]
     for alpha_val_deg in alphas_deg:
         for omega in omegas:
             for init_grp in file[f"alpha{alpha_val_deg:05.2f}/omega{omega:06.3f}"].values():
-                if "init00.0_00.0_0.1" not in init_grp.name:
+                if "init00.0_00.0" not in init_grp.name:
                     continue
 
                 theta_full = init_grp["theta"][:]
@@ -26,6 +27,8 @@ with h5py.File("Data/dissip_trajectories.h5", "r") as file:
                 theta = theta_full[mask]
                 p_full = init_grp["p"][:]
                 p = p_full[mask]
+
+                gamma = init_grp.attrs["gamma"]
 
                 plt.figure()
                 plt.scatter(
@@ -42,7 +45,8 @@ with h5py.File("Data/dissip_trajectories.h5", "r") as file:
                 p0 = init_grp.attrs["p0"]
                 plt.title(
                         f"Poincaré section\n"
-                        rf"$\alpha = {alpha:.1f}^\circ,\ \omega = {omega:.2f}\,rad/s,\ $"
+                        rf"$\alpha = {alpha:.1f}^\circ,\ \omega = {omega:.2f}\,rad/s,\, \gamma={gamma}$"
+                        "\n"
                         rf"$\theta_0 = {theta0:.1f}^\circ,\ p_0 = {p0}$"
                     )
 

@@ -68,8 +68,10 @@ def param_scan(theta0, p0, alphas_omegas, strob=True, gamma=0):
         with h5py.File(file_path, "a") as file:
             if gamma == 0:
                 worker = compute_poincare_verlet
+                print("Using velocity verlet")
             else:
                 worker = compute_poincare_rk
+                print("Using DOP853")
 
             for alpha, omega, theta, p, dt, t, T, gamma in tqdm(
                     pool.imap_unordered(worker, param_list),
