@@ -12,7 +12,7 @@ def compute_poincare_rk(params):
 
     T = 2*np.pi/omega
     discard = min(500*T, 1_000)  # Discard initial transient behaviour
-    t_fin = min(discard + 100*T, 5_000)
+    t_fin = min(discard + 500*T, 5_000)
     # Note that this won't get good results for very small omega
 
     t, theta, p = time_evolve_rk(

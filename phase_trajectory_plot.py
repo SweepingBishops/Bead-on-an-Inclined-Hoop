@@ -5,15 +5,15 @@ import h5py
 
 dissip = ""
 data_file_path = f"Data/{dissip}trajectories.h5"
-phase_plots_path = "Plots/phase_plots/"
-time_plots_path = "Plots/time_series_plots/dissip_0_to_15/"
+phase_plots_path = "Plots/phase_plots/hamiltonian/"
+time_plots_path = "Plots/time_series_plots/hamiltonian/"
 
 with h5py.File(data_file_path, "r") as file:
     # alphas = [i for i in range(16)]
     # omegas = [i for i in range(1,11)]
-    alphas = [15]
+    alphas = [2]
     #omegas = [i for i in range(1,11)]
-    omegas = [i for i in range(1,11)]
+    omegas = np.arange(3, 6.1, 0.2)
     for alpha_val in alphas:
         for omega in omegas:
             for init_grp in file[f"alpha{alpha_val:05.2f}/omega{omega:06.3f}"].values():
@@ -34,7 +34,7 @@ with h5py.File(data_file_path, "r") as file:
                 if "gamma" in init_grp.attrs.keys():
                     file_name = f"{np.rad2deg(alpha):03.1f}_{omega:04.1f}_{gamma}-{np.rad2deg(theta0):04.1f}_{p0:04.1f}.jpg"
                 else:
-                    file_name = f"{np.rad2deg(alpha):03.1f}_{omega:04.1f}-{np.rad2deg(theta0):04.1f}_{p0:04.1f}.jpg"
+                    file_name = f"{np.rad2deg(alpha):03.1f}_{omega:04.1f}-{np.rad2deg(theta0):04.1f}_{p0:04.1f}.png"
                 plt.figure(figsize=(10,7))
                 plt.plot(theta, p, lw=0.2, color="navy", alpha=0.4)
                 plt.xlabel(r"$\theta\,(rad)$")
@@ -46,6 +46,9 @@ with h5py.File(data_file_path, "r") as file:
                           "\n"
                           rf"$\theta_0={np.rad2deg(theta0):04.1f}^\circ\, p_0={p0:04.1f}$"
                           )
+                plt.grid(True, which="major", lw=0.8, alpha=0.6)
+                plt.grid(True, which="minor", lw=0.5, alpha=0.5)
+                plt.minorticks_on()
 
                 plt.savefig(phase_plots_path + dissip + file_name, bbox_inches="tight")
                 #plt.show()
@@ -69,7 +72,8 @@ with h5py.File(data_file_path, "r") as file:
                           "\n"
                           rf"$\theta_0={np.rad2deg(theta0):04.1f}^\circ\, p_0={p0:04.1f}$"
                           )
+                plt.grid(True, which="both")
                 plt.savefig(time_plots_path + dissip + file_name, bbox_inches="tight")
-                plt.show()
+                #plt.show()
                 plt.close()
                 print(dissip + file_name + " Done")
