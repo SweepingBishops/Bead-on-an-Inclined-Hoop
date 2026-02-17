@@ -26,7 +26,7 @@ def force(theta, t,
 def velocity_verlet(theta0, p0, t_fin,
                     omega, alpha,
                     discard_initial_time=0,  # Initial transient time to discard from result (in sec)
-                    t_in=0, dt=0.05,
+                    t_in=0, dt=0.01,
                     strob=False,  # whether to sample stroboscopically
                     strob_time=1  # If strob=True, then time period of sampling. Note strob time is taken after
                                   # the initial steps are discarded according to discard_initial_time
@@ -35,6 +35,8 @@ def velocity_verlet(theta0, p0, t_fin,
 
     n_steps = int( (t_fin-t_in) /dt)
     discard_steps = int(discard_initial_time/dt)
+    if discard_steps > n_steps:
+        raise ValueError("Discard time larger than integration time")
 
     theta = np.empty(n_steps)
     p = np.empty(n_steps)
@@ -74,16 +76,18 @@ def velocity_verlet(theta0, p0, t_fin,
 
 def time_evolve_rk(
     theta0,
-    theta_dot0,
+    p0,
     t_fin,
     omega,
     alpha,
     discard_initial_time=0,  # initial transient time to discard from results (in sec)
     gamma=0,
     g_eff = 9.8/0.355,  # g/hoop radius
+    R_0 = 0.355,
     t_in=0,
-    n_points=50000,
     method="DOP853",   #DOP853 is a high-order explicit Runge-Kutta method - RK45 might induce damping artifacts for long time evolutions even when b = 0.
+    rtol=1e-10,
+    atol=1e-12,
     strob=False,   # Whether to sample stroboscopically
     strob_time=1  # If strob=True, then time period for sampling. Note strob time is taken after
                   # the initial steps are discarded according to discard_initial_time
@@ -92,7 +96,7 @@ def time_evolve_rk(
     Time evolve the driven pendulum with damping.
 
     Returns:
-        t_vals, theta_vals, theta_dot_vals
+        t_vals, theta_vals, p_theta_vals
     """
 
     def dynamical_system(t, config):
@@ -108,12 +112,9 @@ def time_evolve_rk(
 
         return [dtheta_dt, dtheta_dot_dt]
 
+    theta_dot0 = p0 /(R_0**2)
     t_span = (t_in, t_fin)
     t_start = t_in + discard_initial_time
-    if strob is False:
-        t_eval = np.linspace(t_start, t_fin, n_points)
-    else:
-        t_eval = np.arange(t_start, t_fin, strob_time)
 
     y0 = [theta0, theta_dot0]
 
@@ -121,11 +122,27 @@ def time_evolve_rk(
         dynamical_system,
         t_span,
         y0,
-        t_eval=t_eval,
-        method=method
+        method=method,
+        rtol=rtol,
+        atol=atol,
     )
 
-    return sol.t, sol.y[0], sol.y[1]
+    mask = sol.t >= t_start  # discard transients
+    sol.t = sol.t[mask]
+    sol.y = sol.y[:,mask]
+
+    if strob:
+        T = strob_time
+
+        nT = np.round(sol.t/T).astype(int)
+        dt_estimate = np.median(np.diff(sol.t))
+        mask = np.abs(sol.t - nT*T) < dt_estimate/2
+
+        sol.t = sol.t[mask]
+        sol.y = sol.y[:,mask]
+        
+
+    return sol.t, sol.y[0], R_0**2 * sol.y[1]
 
 
 #-------------------------
@@ -136,7 +153,7 @@ if __name__ == "__main__":
 
     t, theta, theta_dot = time_evolve_rk(
         theta0=0.1,
-        theta_dot0=0.0,
+        p0=0.0,
         t_fin=2000,
         discard_initial_time=1000,
         omega=6,

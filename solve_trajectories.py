@@ -4,12 +4,21 @@ from parameter_scan import param_scan
 
 
 if __name__ == "__main__":
-    alphas_deg = np.array([1,2])
-    alphas_rad = np.deg2rad(alphas_deg)
-    #omegas = np.arange(0.01,10,0.01)
-    omegas = [0.01] + [i for i in range(1,11)]
-    #theta0 = np.deg2rad(0.01)
-    theta0 = 0.5
-    p0=0
+    alphas_omegas = set()
 
-    param_scan(theta0, p0, alphas_rad, omegas, strob=False)
+    alphas_deg = np.array([i for i in range(0,90, 2)])
+    alphas_rad = np.deg2rad(alphas_deg)
+    omegas = np.arange(1,11,0.1)
+    alphas_omegas.update([(a,w) for a in alphas_rad for w in omegas])
+
+    alphas_deg = np.arange(0,90,0.2)
+    alphas_rad = np.deg2rad(alphas_deg)
+    omegas = [i for i in range(1,11)]
+    alphas_omegas.update([(a,w) for a in alphas_rad for w in omegas])
+
+    theta0 = np.deg2rad(0.01)
+    p0=0
+    gamma = 0.5
+
+
+    param_scan(theta0, p0, alphas_omegas, strob=False, gamma=gamma)
