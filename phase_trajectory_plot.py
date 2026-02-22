@@ -13,7 +13,7 @@ with h5py.File(data_file_path, "r") as file:
     # omegas = [i for i in range(1,11)]
     alphas = [2]
     #omegas = [i for i in range(1,11)]
-    omegas = np.arange(3, 6.1, 0.2)
+    omegas = np.arange(3, 6.1, 0.1)
     for alpha_val in alphas:
         for omega in omegas:
             for init_grp in file[f"alpha{alpha_val:05.2f}/omega{omega:06.3f}"].values():
@@ -34,9 +34,9 @@ with h5py.File(data_file_path, "r") as file:
                 if "gamma" in init_grp.attrs.keys():
                     file_name = f"{np.rad2deg(alpha):03.1f}_{omega:04.1f}_{gamma}-{np.rad2deg(theta0):04.1f}_{p0:04.1f}.jpg"
                 else:
-                    file_name = f"{np.rad2deg(alpha):03.1f}_{omega:04.1f}-{np.rad2deg(theta0):04.1f}_{p0:04.1f}.png"
+                    file_name = f"{np.rad2deg(alpha):03.1f}_{omega:04.1f}-{np.rad2deg(theta0):04.1f}_{p0:04.1f}.jpg"
                 plt.figure(figsize=(10,7))
-                plt.plot(theta, p, lw=0.2, color="navy", alpha=0.4)
+                plt.plot(theta, p, lw=0.2, alpha=0.4)
                 plt.xlabel(r"$\theta\,(rad)$")
                 plt.ylabel(r"$p_\theta\, (m^2 rad/s)$")
                 plt.xlim(-np.pi, np.pi)
@@ -52,7 +52,7 @@ with h5py.File(data_file_path, "r") as file:
 
                 plt.savefig(phase_plots_path + dissip + file_name, bbox_inches="tight")
                 #plt.show()
-                #plt.close()
+                plt.close()
                 
                 if "dissip" in data_file_path:
                     print("Dissipative")
@@ -62,7 +62,7 @@ with h5py.File(data_file_path, "r") as file:
                     dt = init_grp.attrs["dt"]
                     t = [n*dt for n in range(len(theta))]
                 plt.figure(figsize=(10,7))
-                plt.plot(t, theta, color="navy")
+                plt.plot(t, theta)
                 plt.xlabel(r"$t\,(sec)$")
                 plt.ylabel(r"$\theta\,(rad)$")
                 plt.ylim(-np.pi, np.pi)

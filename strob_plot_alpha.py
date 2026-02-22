@@ -7,7 +7,8 @@ plots_dir = "Plots/strob_plots_varying_alpha/hamiltonian/"
 
 with h5py.File(f"Data/poincare_trajectories.h5", "r") as file:
     alphas_deg = np.arange(0,90,0.2)
-    omegas = [i for i in range(1,11)]
+    #omegas = [i for i in range(1,11)]
+    omegas = [4]
 
     for omega in omegas:
         alpha_array = list()
@@ -38,8 +39,11 @@ with h5py.File(f"Data/poincare_trajectories.h5", "r") as file:
                   r"$\theta$" " vs. " r"$\alpha$"
                   "\n" rf"$\omega={omega:05.2f}\, rad/s$"
                   )
-        plt.grid(False)
+        plt.grid(True, which="major", lw=0.5, alpha=0.5)
+        plt.grid(True, which="minor", lw=0.2, alpha=0.3)
+        plt.minorticks_on()
 
-        plt.savefig(f"{plots_dir}{omega:04.1f}.jpg")
+        #plt.savefig(f"{plots_dir}{omega:04.1f}.jpg")
         print(f"{plots_dir}{omega:04.1f}.jpg")
+        plt.show()
         plt.close()

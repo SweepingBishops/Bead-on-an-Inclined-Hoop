@@ -11,9 +11,8 @@ def compute_poincare_rk(params):
     alpha, omega, theta0, p0, strob, gamma = params
 
     T = 2*np.pi/omega
-    discard = min(500*T, 1_000)  # Discard initial transient behaviour
-    t_fin = min(discard + 500*T, 5_000)
-    # Note that this won't get good results for very small omega
+    discard = 100*T  # Discard initial transient behaviour
+    t_fin = discard + 1_000*T
 
     t, theta, p = time_evolve_rk(
             theta0, p0, t_fin,
@@ -31,9 +30,8 @@ def compute_poincare_verlet(params):
 
     T = 2*np.pi/omega
     dt = min(T/100, 0.01)  # To get a good resolution of the dynamics
-    discard = min(100*T, 1_000)  # Discard initial transient behaviour
-    t_fin = min(discard + 300*T, 5_000)
-    # Note that this won't get good results for very small omega
+    discard = 100*T  # Discard initial transient behaviour
+    t_fin = discard + 1_000*T
 
     t, theta, p = velocity_verlet(
             theta0, p0, t_fin,
