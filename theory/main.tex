@@ -1,0 +1,89 @@
+\documentclass[a4paper]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{parskip}
+\usepackage{amsmath}
+\usepackage{amsxtra}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{multicol}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{ragged2e}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[colorlinks=false, filecolor=red]{hyperref}
+
+\newcommand{\since}{\because}
+\newcommand{\R}{\mathbb{R}}
+% \mathtoolsset{showonlyrefs}
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+\numberwithin{table}{section}
+
+\title{Bead on a Rotating Hoop: Analysis of Chaos}
+\author{Roshan Mathew Philip and Ashlin V. Thomas}
+\date{\today}
+\begin{document}
+\maketitle
+\raggedright
+
+\section{Bead on a Hoop}
+The lagrangian of our system is:
+\begin{equation}
+    L = \frac{1}{2}mR^2(\dot{\theta}^2 + \omega^2 \sin^2\theta) + mgR(\sin\theta \sin\alpha \cos\omega t + \cos\alpha \cos\theta)
+\end{equation}
+We get the equations of motion:
+\begin{align}
+    \ddot{\theta} &= -\gamma \dot{\theta} - \left(g_{eff} \cos\alpha - \omega^2 \cos\theta\right) + g_{eff}\sin\alpha \cos\omega t \cos\theta\\
+    \intertext{Where $g_{eff} = g/R$. Using small $\alpha$ approximation}
+    \ddot{\theta} & +\gamma \dot{\theta} + (g_{eff} - \omega^2 \cos\theta)\sin\theta = g_{eff}\alpha\cos\omega t\cos\theta
+    \intertext{Using small $\theta$ approximation}
+    \ddot{\theta} & +\gamma \dot{\theta} + (g_{eff} - \omega^2 )\theta = g_{eff}\alpha\cos\omega t
+    \label{eq:small_ang}
+\end{align}
+
+We see that, at small angles, the system behaves like a damped driven oscillator;
+with a natural frequency $\sqrt{g_{eff} - \omega^2}$. Note that the natural
+frequency depends on the driving frequency.
+Since it is a dampled driven oscilllator we get a resonance
+at
+\begin{align}
+    (g_{eff}-\omega_{res}^2) - \omega_{res}^2 &= 0\\
+    \implies \omega_{res} &= \sqrt{\frac{g_{eff}}{2}}
+\end{align}
+
+We use eq$\eqref{eq:small_ang}$ near resonance only to show the existence of
+resonance. We can't use it for evaluating the trajectories or even
+the amplitude of the resonant oscillations since $\theta$ would be large.
+
+See \emph{Lisandro A Raviola et al 2017 Eur. J. Phys. 38} for 
+the correction to use when we consider a bead rotating without slipping
+instead of a point particle.
+
+\section{Hamiltonian Chaos}
+Because of Liouville's theorem chaos is hard to achieve in Hamiltonian systems.
+We have two major explanations for why chaos emerges in Hamiltonian systems,
+KAM theory, and Melnikov theory.
+
+\subsection{Action-Angle Variables}
+Using the Hamilton-Jacobi theory we get our generalised coordinates
+in a very particular form $(I_\theta,\theta)$ where $\theta$ is an angle and
+$I_\theta$ is the corresponding momentum. Furthermore, the generalised
+coordinate $\theta$ is cyclic ($\therefore I_\theta$ is contant), and $\dot{\theta}=\omega(I_\theta)$.\\
+
+Therefore, in the phase space $I_\theta$ is fixed while $\theta$ vary.
+The full phase space is isomorphic to $\R^n\times T^n$ where $n$ is the
+number of generalised angles, and $T^n$ is an n-Torus:
+$$T^n = S^1 \times \dots (\text{$n$ times})\dots \times S^1$$
+\subsection{Kolmogorov–Arnold–Moser (KAM) theory}
+We start with an integrable Hamiltonian system ($H_0$) and a perturbation
+to it that makes it non-integrable.\\
+Note $H_0\equiv H_0(I+i)$
+\begin{align}
+    \dot{I_i}= 0; \quad&\quad \dot{\theta_i}= \omega_i(I)\\
+     \omega_i(I)=&\frac{\partial H_0}{\partial I_i} 
+\end{align}
+
+\end{document}
