@@ -95,5 +95,49 @@ A resonance occurs when
 $$k\cdot\omega = 0$$
 for some vector $k=0$ with integer components. Or in other words, the
 ratios between the frequencies of the different $\theta$ are rational.
+If the frequency is resonant, the trajectory is a closed curve on the
+invariant torus. On the other hand, the trajectories of non-resonant
+frequencies are dense curves on the torus.
 
+\subsection{KAM iteration}
+We try to find a near-identity canonical transformation
+$$(I,\theta) \rightarrow (I', \theta')$$
+such that the perturbation becomes smaller
+$$H'(I',\theta') = H_0'(I') + \text{smaller perturbation}$$
+If we can do this repeatedly, the perturbation shrinks the invariant
+torii survive.
+% https://champsproject.github.io/lagrangian_descriptors/content/chapter2_2.html
+
+Take the generating function
+\begin{gather}
+    S(\theta,I') = \theta\cdot I' + \epsilon S_1(\theta, I')
+\end{gather}
+This produces a near-identity transformation.
+The new Hamiltonian will contain terms like
+\begin{align}
+    H_1 +& \omega(I)\cdot\partial_\theta S_1
+    \intertext{To remove the angle dependence we solve the equation}
+    \omega(I)\cdot &\partial_\theta S_1 = -H_1^a
+\end{align}
+where $H_1^{\theta}$ is the angle-dependent part of $H_1$
+
+Expand the perturbation in Fourier modes
+\begin{align}
+    H_1(I,\theta) &= \sum_k H_{1k}(I)e^{ik\cdot\theta}
+    \intertext{then the equation for $S_1$ becomes}
+    S_{1k} &= \frac{-H_{1k}}{i(\omega\cdot k)}
+\end{align}
+
+
+If the denominator $k\dot\omega$ becomes large, perturbation
+theory breaks down. This is precisely the condition for resonance.
+Therefore the resonant tori get destroyed immediately upon adding the
+perturbation. Some frequency ratios, though irrational, can be approximated
+very well by a rational ratio. For example, the Liouville number ($0.1010010001...$)
+can be approximated extremely well by rationals. On the other hand, the golden
+ratio is approximated very badly by rationals. In fact it is the worst
+approximable irrational number.
+To control the denominators for the frequency $\omega$, KAM theory uses the Diophantine condition.
+$\exists \gamma > 0$ and $\tau > n-1$ such that
+$$|k\cdot\omega| \geq \frac{\gamma}{|k|^\tau}$$
 \end{document}
