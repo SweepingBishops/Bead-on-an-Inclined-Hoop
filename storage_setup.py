@@ -42,10 +42,10 @@ Each HDF5 file follows the same logical hierarchy:
     │   │   ├── init_00.0_00.0
     │   │   │   ├── theta   (dataset)
     │   │   │   └── p       (dataset)
-    │   │   └── init_1
-    │   └── omega1
+    │   │   └── init_01.0_00.0
+    │   └── omega01.000
     │
-    └── alpha1
+    └── alpha01.00
 
 Hierarchy semantics:
 - alphai   : one value of the control parameter alpha
