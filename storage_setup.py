@@ -35,11 +35,11 @@ Each HDF5 file follows the same logical hierarchy:
     │   ├── alpha_units
     │   ├── omega_units
     │
-    ├── alpha0
+    ├── alpha00.00
     │   ├── (attrs: alpha)
-    │   ├── omega0
+    │   ├── omega00.000
     │   │   ├── (attrs: omega)
-    │   │   ├── init_0
+    │   │   ├── init_00.0_00.0
     │   │   │   ├── theta   (dataset)
     │   │   │   └── p       (dataset)
     │   │   └── init_1

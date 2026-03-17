@@ -5,8 +5,10 @@ import matplotlib.pyplot as plt
 
 plots_dir = "Plots/strob_plots_varying_omega/hamiltonian/"
 
+alphas_deg = range(0, 91, 2)
+
 with h5py.File("Data/poincare_trajectories.h5", "r") as file:
-    for alpha in range(0,91, 2):
+    for alpha in alphas_deg:
         alpha_grp = file[f"alpha{alpha:05.2f}"]
         omega_array = list()
         theta_array = list()

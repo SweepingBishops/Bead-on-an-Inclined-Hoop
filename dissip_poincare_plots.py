@@ -4,11 +4,12 @@ import h5py
 import numpy as np
 
 plots_dir = "Plots/poincare_sections/"
-dissip = ""
+dissip = ""  # Valid values are either an empty string or "dissip_"
+
+alphas_deg = [15]
+omegas = [i for i in range(1,11)]
 
 with h5py.File(f"Data/{dissip}trajectories.h5", "r") as file:
-    alphas_deg = [15]
-    omegas = [i for i in range(1,11)]
     for alpha_val_deg in alphas_deg:
         for omega in omegas:
             for init_grp in file[f"alpha{alpha_val_deg:05.2f}/omega{omega:06.3f}"].values():

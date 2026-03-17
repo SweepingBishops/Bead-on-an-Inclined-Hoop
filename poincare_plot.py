@@ -5,9 +5,10 @@ import numpy as np
 
 plots_dir = "Plots/poincare_sections/hamiltonian/"
 
+alphas_deg = [10]
+omegas = np.arange(6, 6.1, 0.1)
+
 with h5py.File(f"Data/poincare_trajectories.h5", "r") as file:
-    alphas_deg = [2]
-    omegas = np.arange(3, 6.1, 0.1)
     for alpha_val_deg in alphas_deg:
         for omega in omegas:
             for init_grp in file[f"alpha{alpha_val_deg:05.2f}/omega{omega:06.3f}"].values():

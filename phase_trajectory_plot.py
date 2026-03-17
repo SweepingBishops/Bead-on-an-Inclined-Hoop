@@ -3,18 +3,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 
-dissip = ""
+dissip = ""  # Valid values are either an empty string or "dissip_"
 data_file_path = f"Data/{dissip}trajectories.h5"
 phase_plots_path = "Plots/phase_plots/hamiltonian/"
 time_plots_path = "Plots/time_series_plots/hamiltonian/"
 
+# alphas = [i for i in range(16)]
+# omegas = [i for i in range(1,11)]
+alphas_deg = [10]
+#omegas = [i for i in range(1,11)]
+omegas = np.arange(1, 10.1, 1)
+omegas = np.append(omegas,4.9)
+
 with h5py.File(data_file_path, "r") as file:
-    # alphas = [i for i in range(16)]
-    # omegas = [i for i in range(1,11)]
-    alphas = [2]
-    #omegas = [i for i in range(1,11)]
-    omegas = np.arange(3, 6.1, 0.1)
-    for alpha_val in alphas:
+    for alpha_val in alphas_deg:
         for omega in omegas:
             for init_grp in file[f"alpha{alpha_val:05.2f}/omega{omega:06.3f}"].values():
                 if  "init00.0_00.0" not in init_grp.name:
@@ -62,7 +64,7 @@ with h5py.File(data_file_path, "r") as file:
                     dt = init_grp.attrs["dt"]
                     t = [n*dt for n in range(len(theta))]
                 plt.figure(figsize=(10,7))
-                plt.plot(t, theta)
+                plt.plot(t[:5000], theta[:5000])
                 plt.xlabel(r"$t\,(sec)$")
                 plt.ylabel(r"$\theta\,(rad)$")
                 plt.ylim(-np.pi, np.pi)

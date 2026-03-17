@@ -117,13 +117,14 @@ def param_scan(theta0, p0, alphas_omegas, strob=True, gamma=0):
         exit()
 
 if __name__ == "__main__":
-    theta0 = np.deg2rad(0.1)
-    p0 = 0
+    pass
+    # theta0 = np.deg2rad(0.1)
+    # p0 = 0
 
-    #alphas_deg = np.arange(0,15,0.01)
-    alphas_deg = np.array([0])
-    alphas_rad = np.deg2rad(alphas_deg)
-    #omegas = [i for i in range(1,11)]
-    omegas = np.arange(0.01,10, 0.01)
-    alphas_omegas = [(a,w) for a in alphas_rad for w in omegas]
-    param_scan(theta0, p0, alphas_omegas, strob=True)
+    # #alphas_deg = np.arange(0,15,0.01)
+    # alphas_deg = np.array([0])
+    # alphas_rad = np.deg2rad(alphas_deg)
+    # #omegas = [i for i in range(1,11)]
+    # omegas = np.arange(0.01,10, 0.01)
+    # alphas_omegas = [(a,w) for a in alphas_rad for w in omegas]
+    # param_scan(theta0, p0, alphas_omegas, strob=True)
