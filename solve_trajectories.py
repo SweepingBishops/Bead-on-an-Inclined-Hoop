@@ -16,9 +16,9 @@ if __name__ == "__main__":
     omegas = [i for i in range(1,11)]
     alphas_omegas.update([(a,w) for a in alphas_rad for w in omegas])
 
-    theta0 = np.deg2rad(0.01)
+    theta0 = np.deg2rad(30.0)
     p0=0
-    gamma = 0
+    gamma = 1
 
 
-    param_scan(theta0, p0, alphas_omegas, strob=True, gamma=gamma)
+    param_scan(theta0, p0, alphas_omegas, strob=False, gamma=gamma)

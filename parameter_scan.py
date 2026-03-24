@@ -52,7 +52,8 @@ def param_scan(theta0, p0, alphas_omegas, strob=True, gamma=0):
 
     param_list = [(a,w, theta0, p0, strob, gamma) for a,w in alphas_omegas]
 
-    pool = Pool(processes=max(os.cpu_count()-1,1) , initializer=init_worker)
+    pool = Pool(processes=max(os.cpu_count(),1) , initializer=init_worker)
+    #pool = Pool(processes=max(os.cpu_count()-1,1) , initializer=init_worker)
 
     try:
         if strob and gamma == 0:

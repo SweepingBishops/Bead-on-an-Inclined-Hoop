@@ -5,14 +5,14 @@ import numpy as np
 
 plots_dir = "Plots/poincare_sections/hamiltonian/"
 
-alphas_deg = [10]
-omegas = np.arange(6, 6.1, 0.1)
+alphas_deg = [40]
+omegas = np.arange(5,10.1,1)
 
 with h5py.File(f"Data/poincare_trajectories.h5", "r") as file:
     for alpha_val_deg in alphas_deg:
         for omega in omegas:
             for init_grp in file[f"alpha{alpha_val_deg:05.2f}/omega{omega:06.3f}"].values():
-                if "init00.0_00.0" not in init_grp.name:
+                if "init30.0_00.0" not in init_grp.name:
                     continue
 
                 theta = init_grp["theta"][:]
