@@ -73,4 +73,26 @@ Let us define $U= U_0 \hbar^2$, $t_1 = -\frac{U_1}{2}$ and $t_2 = \frac{U_2}{4}$
 
 This Hamiltonian can be interpreted as a tight-binding model on a one-dimensional lattice with nearest-neighbor and next-nearest-neighbor hopping terms, as well as an on-site potential which is a discrete version of the quantum harmonic oscillator potential.
 
+\section{Spectrum of the Hamiltonian}
+Let us begin with the case where $U = 0$, in this limit, the Hamiltonian $H_0$ becomes translationally invariant, and we can diagonalize it using a Fourier transform.
+Let us define a momentum state $\ket{k}$ as follows:
+\begin{equation}
+\ket{k} = \frac{1}{\sqrt{N}} \sum_{n=-\infty}^{\infty} e^{i k n} \ket{n}
+\end{equation}
+The action of the Hamiltonian $H_0$ on the momentum state $\ket{k}$ can be computed as follows:
+\begin{equation}
+    H \ket{k} = 2 t_1 \cos(k) \ket{k} + 2 t_2 \cos(2k) \ket{k}
+\end{equation}
+Thus, the energy eigenvalues in this limit are given by:
+\begin{equation}
+E(k) = 2 t_1 \cos(k) + 2 t_2 \cos(2k)
+\end{equation}
+
+To study the effect of the on-site potential term, we can treat it as a perturbation to the Hamiltonian $H_0$.
+The first-order correction to the energy eigenvalues can be computed using perturbation theory as follows:
+\begin{equation}
+    E_n^{(1)} = \bra{k} U n^2 \ket{k} = U \sum_{n=-\infty}^{\infty} n^2 |\bra{n}\ket{k}|^2
+
+
+
 \end{document}
