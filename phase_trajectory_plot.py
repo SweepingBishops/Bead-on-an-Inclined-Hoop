@@ -3,23 +3,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 
-dissip = ""  # Valid values are either an empty string or "dissip_"
+dissip = "dissip_"  # Valid values are either an empty string or "dissip_"
 data_file_path = f"Data/{dissip}trajectories.h5"
-phase_plots_path = "Plots/phase_plots/hamiltonian/"
-time_plots_path = "Plots/time_series_plots/hamiltonian/"
+phase_plots_path = "Plots/phase_plots/"
+time_plots_path = "Plots/time_series_plots/"
 
 # alphas = [i for i in range(16)]
 # omegas = [i for i in range(1,11)]
-alphas_deg = [10]
-#omegas = [i for i in range(1,11)]
-omegas = np.arange(1, 10.1, 1)
-omegas = np.append(omegas,4.9)
+alphas_deg = [53]
+omegas = np.arange(1.0, 10.01, 0.02)
 
 with h5py.File(data_file_path, "r") as file:
     for alpha_val in alphas_deg:
         for omega in omegas:
             for init_grp in file[f"alpha{alpha_val:05.2f}/omega{omega:06.3f}"].values():
-                if  "init00.0_00.0" not in init_grp.name:
+                if  "init30.0_00.0" not in init_grp.name:
                     continue
                 alpha = init_grp.attrs["alpha"]
                 if "gamma" in init_grp.attrs.keys():
@@ -34,17 +32,17 @@ with h5py.File(data_file_path, "r") as file:
                 p = init_grp["p"][:]
 
                 if "gamma" in init_grp.attrs.keys():
-                    file_name = f"{np.rad2deg(alpha):03.1f}_{omega:04.1f}_{gamma}-{np.rad2deg(theta0):04.1f}_{p0:04.1f}.jpg"
+                    file_name = f"{np.rad2deg(alpha):04.2f}_{omega:04.2f}_{gamma}-{np.rad2deg(theta0):04.1f}_{p0:04.1f}.jpg"
                 else:
-                    file_name = f"{np.rad2deg(alpha):03.1f}_{omega:04.1f}-{np.rad2deg(theta0):04.1f}_{p0:04.1f}.jpg"
+                    file_name = f"{np.rad2deg(alpha):04.2f}_{omega:04.2f}-{np.rad2deg(theta0):04.1f}_{p0:04.1f}.jpg"
                 plt.figure(figsize=(10,7))
                 plt.plot(theta, p, lw=0.2, alpha=0.4)
                 plt.xlabel(r"$\theta\,(rad)$")
                 plt.ylabel(r"$p_\theta\, (m^2 rad/s)$")
-                plt.xlim(-np.pi, np.pi)
-                plt.ylim(-np.pi, np.pi)
+                #plt.xlim(-np.pi, np.pi)
+                #plt.ylim(-np.pi, np.pi)
                 plt.title("Phase Space Trajectory\n"
-                          rf"$\alpha={np.rad2deg(alpha):03.1f}^\circ\, \omega={omega:03.1f}\, \gamma={gamma}$"
+                          rf"$\alpha={np.rad2deg(alpha):04.2f}^\circ\, \omega={omega:04.2f}\, \gamma={gamma}$"
                           "\n"
                           rf"$\theta_0={np.rad2deg(theta0):04.1f}^\circ\, p_0={p0:04.1f}$"
                           )
@@ -57,20 +55,18 @@ with h5py.File(data_file_path, "r") as file:
                 plt.close()
                 
                 if "dissip" in data_file_path:
-                    print("Dissipative")
                     t = init_grp["t"][:]
                 else:
-                    print("Not dissipative")
                     dt = init_grp.attrs["dt"]
                     t = [n*dt for n in range(len(theta))]
                 plt.figure(figsize=(10,7))
-                plt.plot(t[:5000], theta[:5000])
+                plt.plot(t[:500], theta[:500])
                 plt.xlabel(r"$t\,(sec)$")
                 plt.ylabel(r"$\theta\,(rad)$")
-                plt.ylim(-np.pi, np.pi)
+                #plt.ylim(-np.pi, np.pi)
                 plt.title(r"$\theta\,vs. t$"
                           "\n"
-                          rf"$\alpha={np.rad2deg(alpha):03.1f}^\circ\, \omega={omega:03.1f}\, \gamma={gamma}$"
+                          rf"$\alpha={np.rad2deg(alpha):04.2f}^\circ\, \omega={omega:04.2f}\, \gamma={gamma}$"
                           "\n"
                           rf"$\theta_0={np.rad2deg(theta0):04.1f}^\circ\, p_0={p0:04.1f}$"
                           )
