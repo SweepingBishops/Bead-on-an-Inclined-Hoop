@@ -1,0 +1,2 @@
+Angular Velocity : 10.736 
+Error : 0.302 
