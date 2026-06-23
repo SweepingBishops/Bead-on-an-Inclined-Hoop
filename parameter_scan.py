@@ -8,7 +8,8 @@ from time_evolution import time_evolve_rk
 import storage_setup
 
 discard_tau = 100*2*np.pi
-data_tau = 200*2*np.pi
+data_tau = 400*2*np.pi
+samples_per_period = 64
 
 g = 9.8
 R = 0.355/2
@@ -18,16 +19,16 @@ def compute_rk(params):
 
     A = g/(R * omega**2)
     B = gamma/omega
-    tau_fin = discard_tau + data_tau
 
-    uniform, strob = time_evolve_rk(
-            theta0, thetadot0, tau_fin,
+    uniform = time_evolve_rk(
+            theta0, thetadot0, data_tau,
             alpha, A, B,
             discard_tau = discard_tau,
             gamma=gamma,
+            samples_per_period=samples_per_period,
             )
 
-    return uniform, strob, alpha, omega, gamma
+    return uniform, alpha, omega, gamma
 
 # def compute_verlet(params):
 #     alpha, omega, theta0, p0, dt, gamma = params
@@ -61,7 +62,7 @@ def param_scan(theta0, thetadot0, alphas_omegas, gamma=0):
         if gamma == 0:
             file_path = "Data/trajectories.h5"
             print("Non-dissipative case not Implemented.")
-            exit
+            raise NotImplementedError
         else:
             file_path = "Data/dissip_trajectories.h5"
 
@@ -73,7 +74,7 @@ def param_scan(theta0, thetadot0, alphas_omegas, gamma=0):
                 worker = compute_rk
                 print("Using DOP853")
 
-            for uniform, strob, alpha, omega, gamma in tqdm(
+            for uniform, alpha, omega, gamma in tqdm(
                     pool.imap_unordered(worker, param_list),
                     total=len(param_list),
                     desc="Computing trajectories"
@@ -82,25 +83,12 @@ def param_scan(theta0, thetadot0, alphas_omegas, gamma=0):
                 alpha_grp = storage_setup.get_or_create_group(file, f"alpha{np.rad2deg(alpha):05.2f}", attrs={"alpha":alpha})
                 omega_grp = storage_setup.get_or_create_group(alpha_grp, f"omega{omega:06.3f}", attrs={"omega":omega})
 
-                strob_grp = storage_setup.get_or_create_group(omega_grp, f"strob{np.rad2deg(theta0):04.1f}_{thetadot0:04.1f}_{gamma}", attrs={
-                    "theta0": theta0,
-                    "thetadot0": thetadot0,
-                    })
                 uniform_grp =storage_setup.get_or_create_group(omega_grp, f"uniform{np.rad2deg(theta0):04.1f}_{thetadot0:04.1f}_{gamma}", attrs={ 
                     "theta0": theta0,
                     "thetadot0": thetadot0,
+                    "gamma": gamma,
+                    "samples_per_period": samples_per_period,
                     })
-
-                strob_grp.attrs["gamma"] = gamma
-                uniform_grp.attrs["gamma"] = gamma
-
-                storage_setup.create_or_overwrite_dataset(strob_grp, "tau", strob[0])
-                storage_setup.create_or_overwrite_dataset(
-                        strob_grp, "theta", strob[1][0]
-                        )
-                storage_setup.create_or_overwrite_dataset(
-                        strob_grp, "thetadot", strob[1][1]
-                        )
 
                 storage_setup.create_or_overwrite_dataset(uniform_grp, "tau", uniform[0])
                 storage_setup.create_or_overwrite_dataset(

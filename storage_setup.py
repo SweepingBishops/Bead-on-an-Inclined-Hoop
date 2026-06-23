@@ -174,7 +174,7 @@ def create_or_overwrite_dataset(parent, name, data, attrs=None):
     return ds
 
 
-def setup_file(path, integrator, data_type, alphas, omegas, dt=0):
+def setup_file(path, integrator, data_type, alphas, omegas, dtau=0):
     if os.path.isfile(path):
         print(f"{path} already exists. Skipping...")
         return

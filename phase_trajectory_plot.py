@@ -9,9 +9,9 @@ phase_plots_path = "Plots/phase_plots/"
 time_plots_path = "Plots/time_series_plots/"
 
 #alphas_deg = [i for i in range(49,67)]
-alphas_deg = [49]
+alphas_deg = [16]
 #omegas = np.arange(4.0,5.01, 0.02)
-omegas = [1.34]
+omegas = [2.68]
 
 with h5py.File(data_file_path, "r") as file:
     for alpha_val in alphas_deg:

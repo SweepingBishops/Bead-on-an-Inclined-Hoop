@@ -78,7 +78,7 @@ from math import sin, cos
 def time_evolve_rk(
     theta0,
     thetadot0,
-    tau_fin,  # omega*t_fin
+    data_tau,  # omega*data_time
     alpha,
     A,  # g/(R* omega**2)
     B,  # ɣ/omega
@@ -86,6 +86,7 @@ def time_evolve_rk(
     gamma=0.5,
     method="DOP853",   #DOP853 is a high-order explicit Runge-Kutta method - RK45 might induce damping artifacts for long time evolutions even when b = 0.
     tau_in=0,  # omega*t_in
+    samples_per_period = 64,
     rtol=1e-7,
     atol=1e-8,
     ):
@@ -95,7 +96,8 @@ def time_evolve_rk(
     Returns:
         tau_vals, theta_vals, theta_dot_vals
     """
-
+    
+    tau_fin = discard_tau + data_tau
     A_cos_alpha = A*cos(alpha)
     A_sin_alpha = A*sin(alpha)
 
@@ -107,12 +109,16 @@ def time_evolve_rk(
         dtheta_dot_dtau = (
             - B * theta_dot
             - (A_cos_alpha - cos(theta)) * sin(theta)
-            + A_sin_alpha * np.sin(tau) * np.cos(theta)
+            + A_sin_alpha * sin(tau) * cos(theta)
         )
 
         return [dtheta_dtau, dtheta_dot_dtau]
 
     tau_span = (tau_in, tau_fin)
+    T = 2*np.pi
+    dtau = T/samples_per_period
+    N = int(data_tau/dtau)
+    tau_uniform = discard_tau + dtau * np.arange(N)
 
     y0 = [theta0, thetadot0]
 
@@ -121,27 +127,13 @@ def time_evolve_rk(
         tau_span,
         y0,
         method=method,
-        dense_output=True,
+        dense_output=False,
+        t_eval=tau_uniform,
         rtol=rtol,
         atol=atol,
     )
 
-    samples_per_period = 128
-
-    T = 2*np.pi
-
-    tau_uniform = np.arange(
-            discard_tau,
-            tau_fin,
-            T/samples_per_period
-            )
-
-    tau_strob = np.arange(discard_tau, tau_fin, T)
-
-    y_uniform = sol.sol(tau_uniform)
-    y_strob = sol.sol(tau_strob)
-
-    return (tau_uniform, y_uniform), (tau_strob, y_strob)
+    return (sol.t, sol.y)
 
 
 
@@ -150,6 +142,7 @@ def time_evolve_rk(
 #-------------------------
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
+    from time import perf_counter
 
     g = 9.8
     R = 0.355/2
@@ -159,15 +152,18 @@ if __name__ == "__main__":
     A = g/(R * omega**2)
     B = gamma/omega
 
-    uniform, strob = time_evolve_rk(
+    t0 = perf_counter()
+    uniform = time_evolve_rk(
         theta0=0.1,
         thetadot0=0.0,
-        tau_fin = 1000*2*np.pi,
+        data_tau = 200*2*np.pi,
         discard_tau=100*2*np.pi,
         A=A,
         B=B,
         alpha=np.deg2rad(60),
     )
+    t1 = perf_counter()
+    print('Time taken for integration:', t1-t0, 'sec')
 
     plt.figure()
     plt.plot(uniform[0], uniform[1][0])
