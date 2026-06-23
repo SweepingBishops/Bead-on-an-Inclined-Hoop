@@ -6,31 +6,22 @@ import matplotlib.pyplot as plt
 plots_dir = "Plots/strob_plots_varying_omega/gamma_0.5/theta0_30/"
 
 #alphas_deg = range(21, 28, 1)
-alphas_deg = [51]
+alphas_deg = [50]
 
 with h5py.File("Data/dissip_trajectories.h5", "r") as file:
     for alpha in alphas_deg:
         alpha_grp = file[f"alpha{alpha:05.2f}"]
         omega_array = list()
         theta_array = list()
-        #for omega_val in np.arange(1,10.01,0.02): 
-        for omega_val in np.arange(1,7.01,0.02): 
+        for omega_val in np.arange(1,10.01,0.02): 
             omega_grp = alpha_grp[f"omega{omega_val:06.3f}"]
             omega = omega_grp.attrs["omega"]
-            init_grp = omega_grp["init30.0_00.0_0.5"]
-            theta0 = init_grp.attrs["theta0"]
-            p0 = init_grp.attrs["p0"]
-            # for init_grp in omega_grp.values():
-            theta = init_grp["theta"][:]
+            trjy_grp = omega_grp["uniform30.0_00.0_0.5"]
+            theta0 = trjy_grp.attrs["theta0"]
+            thetadot0 = trjy_grp.attrs["thetadot0"]
+            samples = trjy_grp.attrs["samples_per_period"]
+            theta = trjy_grp["theta"][::samples]
             theta = (np.array(theta) + np.pi) % (2*np.pi) - np.pi  #  Plotting theta in the range -pi to pi
-
-            t = init_grp["t"][:]
-            dt_estimate = np.median(np.diff(t))
-            
-            T = 2*np.pi/omega
-            nT = np.round(t / T).astype(int)
-            mask = np.abs(t - nT*T) < dt_estimate/2
-            theta = theta[mask][:]
 
             omega = [omega]*np.size(theta)
             theta_array.extend(theta)
