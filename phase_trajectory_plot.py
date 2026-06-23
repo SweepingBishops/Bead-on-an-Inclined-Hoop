@@ -9,15 +9,15 @@ phase_plots_path = "Plots/phase_plots/"
 time_plots_path = "Plots/time_series_plots/"
 
 #alphas_deg = [i for i in range(49,67)]
-alphas_deg = [51]
-omegas = np.arange(4.0,5.01, 0.02)
-#omegas = [2.32,2.34,2.36]
+alphas_deg = [49]
+#omegas = np.arange(4.0,5.01, 0.02)
+omegas = [1.34]
 
 with h5py.File(data_file_path, "r") as file:
     for alpha_val in alphas_deg:
         for omega in omegas:
             for init_grp in file[f"alpha{alpha_val:05.2f}/omega{omega:06.3f}"].values():
-                if  "init30.0_00.0" not in init_grp.name:
+                if  "uniform30.0_00.0" not in init_grp.name:
                     continue
                 alpha = init_grp.attrs["alpha"]
                 if "gamma" in init_grp.attrs.keys():
@@ -25,18 +25,18 @@ with h5py.File(data_file_path, "r") as file:
                 else:
                     gamma = 0
                 theta0 = init_grp.attrs["theta0"]
-                p0 = init_grp.attrs["p0"]
+                thetadot0 = init_grp.attrs["thetadot0"]
 
                 theta = init_grp["theta"][:]
                 theta = (np.array(theta) + np.pi) % (2*np.pi) - np.pi  #  Plotting theta in the range -pi to pi
-                p = init_grp["p"][:]
+                thetadot = init_grp["thetadot"][:]
 
                 if "gamma" in init_grp.attrs.keys():
-                    file_name = f"{np.rad2deg(alpha):04.2f}_{omega:04.2f}_{gamma}-{np.rad2deg(theta0):04.1f}_{p0:04.1f}.jpg"
+                    file_name = f"{np.rad2deg(alpha):04.2f}_{omega:04.2f}_{gamma}-{np.rad2deg(theta0):04.1f}_{thetadot0:04.1f}.jpg"
                 else:
-                    file_name = f"{np.rad2deg(alpha):04.2f}_{omega:04.2f}-{np.rad2deg(theta0):04.1f}_{p0:04.1f}.jpg"
+                    file_name = f"{np.rad2deg(alpha):04.2f}_{omega:04.2f}-{np.rad2deg(theta0):04.1f}_{thetadot0:04.1f}.jpg"
                 plt.figure(figsize=(10,7))
-                plt.plot(theta, p, lw=0.2, alpha=0.4)
+                plt.plot(theta, thetadot, lw=0.2, alpha=0.4)
                 plt.xlabel(r"$\theta\,(rad)$")
                 plt.ylabel(r"$p_\theta\, (m^2 rad/s)$")
                 #plt.xlim(-np.pi, np.pi)
@@ -44,23 +44,23 @@ with h5py.File(data_file_path, "r") as file:
                 plt.title("Phase Space Trajectory\n"
                           rf"$\alpha={np.rad2deg(alpha):04.2f}^\circ\, \omega={omega:04.2f}\, \gamma={gamma}$"
                           "\n"
-                          rf"$\theta_0={np.rad2deg(theta0):04.1f}^\circ\, p_0={p0:04.1f}$"
+                          rf"$\theta_0={np.rad2deg(theta0):04.1f}^\circ\, p_0={thetadot0:04.1f}$"
                           )
                 plt.grid(True, which="major", lw=0.8, alpha=0.6)
                 plt.grid(True, which="minor", lw=0.5, alpha=0.5)
                 plt.minorticks_on()
 
-                plt.savefig(phase_plots_path + dissip + file_name, bbox_inches="tight")
-                #plt.show()
+                #plt.savefig(phase_plots_path + dissip + file_name, bbox_inches="tight")
+                plt.show()
                 plt.close()
                 
                 if "dissip" in data_file_path:
-                    t = init_grp["t"][:]
+                    t = init_grp["tau"][:]
                 else:
                     dt = init_grp.attrs["dt"]
                     t = [n*dt for n in range(len(theta))]
                 plt.figure(figsize=(10,7))
-                plt.plot(t[:500], theta[:500])
+                plt.plot(t, theta)
                 plt.xlabel(r"$t\,(sec)$")
                 plt.ylabel(r"$\theta\,(rad)$")
                 #plt.ylim(-np.pi, np.pi)
@@ -68,10 +68,10 @@ with h5py.File(data_file_path, "r") as file:
                           "\n"
                           rf"$\alpha={np.rad2deg(alpha):04.2f}^\circ\, \omega={omega:04.2f}\, \gamma={gamma}$"
                           "\n"
-                          rf"$\theta_0={np.rad2deg(theta0):04.1f}^\circ\, p_0={p0:04.1f}$"
+                          rf"$\theta_0={np.rad2deg(theta0):04.1f}^\circ\, p_0={thetadot0:04.1f}$"
                           )
                 plt.grid(True, which="both")
-                plt.savefig(time_plots_path + dissip + file_name, bbox_inches="tight")
-                #plt.show()
+                #plt.savefig(time_plots_path + dissip + file_name, bbox_inches="tight")
+                plt.show()
                 plt.close()
                 print(dissip + file_name + " Done")

@@ -4,75 +4,76 @@ import os, signal
 import numpy as np
 import h5py
 from tqdm import tqdm
-from time_evolution import velocity_verlet, time_evolve_rk
+from time_evolution import time_evolve_rk
 import storage_setup
 
-def compute_poincare_rk(params):
-    alpha, omega, theta0, p0, strob, gamma = params
+discard_tau = 100*2*np.pi
+data_tau = 200*2*np.pi
 
-    T = 2*np.pi/omega
-    discard = 100*T  # Discard initial transient behaviour
-    t_fin = discard + 1_000*T
+g = 9.8
+R = 0.355/2
 
-    t, theta, p = time_evolve_rk(
-            theta0, p0, t_fin,
-            omega, alpha,
-            discard_initial_time = discard,
+def compute_rk(params):
+    alpha, omega, theta0, thetadot0, gamma = params
+
+    A = g/(R * omega**2)
+    B = gamma/omega
+    tau_fin = discard_tau + data_tau
+
+    uniform, strob = time_evolve_rk(
+            theta0, thetadot0, tau_fin,
+            alpha, A, B,
+            discard_tau = discard_tau,
             gamma=gamma,
-            strob=strob,
-            strob_time=T,
             )
 
-    return alpha, omega, theta, p, None, t, T, gamma
+    return uniform, strob, alpha, omega, gamma
 
-def compute_poincare_verlet(params):
-    alpha, omega, theta0, p0, strob, gamma = params
-
-    T = 2*np.pi/omega
-    dt = min(T/100, 0.01)  # To get a good resolution of the dynamics
-    discard = 100*T  # Discard initial transient behaviour
-    t_fin = discard + 1_000*T
-
-    t, theta, p = velocity_verlet(
-            theta0, p0, t_fin,
-            omega, alpha,
-            discard_initial_time = discard,
-            strob=strob,
-            strob_time=T,
-            dt=dt
-            )
-
-    return alpha, omega, theta, p, dt, None, T, gamma
+# def compute_verlet(params):
+#     alpha, omega, theta0, p0, dt, gamma = params
+# 
+#     T = 2*np.pi/omega
+#     dt = min(T/128, 0.01)  # To get a good resolution of the dynamics
+#     discard = 100*T  # Discard initial transient behaviour
+#     t_fin = discard + 1_000*T
+# 
+#     sol = velocity_verlet(
+#             theta0, p0, t_fin,
+#             omega, alpha,
+#             discard_initial_time = discard,
+#             dt=dt
+#             )
+# 
+#     return sol, alpha, omega, dt, T, gamma
 
 def init_worker():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
-def param_scan(theta0, p0, alphas_omegas, strob=True, gamma=0):
+def param_scan(theta0, thetadot0, alphas_omegas, gamma=0):
 
-    param_list = [(a,w, theta0, p0, strob, gamma) for a,w in alphas_omegas]
+    param_list = [(a,w, theta0, thetadot0, gamma) for a,w in alphas_omegas]
 
     pool = Pool(processes=max(os.cpu_count(),1) , initializer=init_worker)
     #pool = Pool(processes=max(os.cpu_count()-1,1) , initializer=init_worker)
 
     try:
-        if strob and gamma == 0:
-            file_path = "Data/poincare_trajectories.h5"
-        elif strob:
-            file_path = "Data/dissip_poincare_trajectories.h5"
-        elif gamma == 0:
+        if gamma == 0:
             file_path = "Data/trajectories.h5"
+            print("Non-dissipative case not Implemented.")
+            exit
         else:
             file_path = "Data/dissip_trajectories.h5"
+
         with h5py.File(file_path, "a") as file:
             if gamma == 0:
-                worker = compute_poincare_verlet
+                worker = compute_verlet
                 print("Using velocity verlet")
             else:
-                worker = compute_poincare_rk
+                worker = compute_rk
                 print("Using DOP853")
 
-            for alpha, omega, theta, p, dt, t, T, gamma in tqdm(
+            for uniform, strob, alpha, omega, gamma in tqdm(
                     pool.imap_unordered(worker, param_list),
                     total=len(param_list),
                     desc="Computing trajectories"
@@ -80,31 +81,33 @@ def param_scan(theta0, p0, alphas_omegas, strob=True, gamma=0):
 
                 alpha_grp = storage_setup.get_or_create_group(file, f"alpha{np.rad2deg(alpha):05.2f}", attrs={"alpha":alpha})
                 omega_grp = storage_setup.get_or_create_group(alpha_grp, f"omega{omega:06.3f}", attrs={"omega":omega})
-                if dt is not None:
-                    init_grp = storage_setup.get_or_create_group(omega_grp, f"init{np.rad2deg(theta0):04.1f}_{p0:04.1f}", attrs={
-                        "theta0": theta0,
-                        "p0": p0,
-                        })
-                else:
-                    init_grp = storage_setup.get_or_create_group(omega_grp, f"init{np.rad2deg(theta0):04.1f}_{p0:04.1f}_{gamma}", attrs={
-                        "theta0": theta0,
-                        "p0": p0,
-                        })
 
+                strob_grp = storage_setup.get_or_create_group(omega_grp, f"strob{np.rad2deg(theta0):04.1f}_{thetadot0:04.1f}_{gamma}", attrs={
+                    "theta0": theta0,
+                    "thetadot0": thetadot0,
+                    })
+                uniform_grp =storage_setup.get_or_create_group(omega_grp, f"uniform{np.rad2deg(theta0):04.1f}_{thetadot0:04.1f}_{gamma}", attrs={ 
+                    "theta0": theta0,
+                    "thetadot0": thetadot0,
+                    })
 
-                if strob:
-                    init_grp.attrs["T"] = T
-                if dt is None:
-                    init_grp.attrs["gamma"] = gamma
-                    storage_setup.create_or_overwrite_dataset(init_grp, "t", t)
-                else:
-                    init_grp.attrs["dt"] = dt
+                strob_grp.attrs["gamma"] = gamma
+                uniform_grp.attrs["gamma"] = gamma
 
+                storage_setup.create_or_overwrite_dataset(strob_grp, "tau", strob[0])
                 storage_setup.create_or_overwrite_dataset(
-                        init_grp, "theta", theta
+                        strob_grp, "theta", strob[1][0]
                         )
                 storage_setup.create_or_overwrite_dataset(
-                        init_grp, "p", p
+                        strob_grp, "thetadot", strob[1][1]
+                        )
+
+                storage_setup.create_or_overwrite_dataset(uniform_grp, "tau", uniform[0])
+                storage_setup.create_or_overwrite_dataset(
+                        uniform_grp, "theta", uniform[1][0]
+                        )
+                storage_setup.create_or_overwrite_dataset(
+                        uniform_grp, "thetadot", uniform[1][1]
                         )
 
             pool.close()

@@ -33,16 +33,21 @@ Each HDF5 file follows the same logical hierarchy:
     │   ├── dt
     │   ├── dt_units
     │   ├── alpha_units
-    │   ├── omega_units
+    │   └── omega_units
     │
     ├── alpha00.00
     │   ├── (attrs: alpha)
     │   ├── omega00.000
     │   │   ├── (attrs: omega)
-    │   │   ├── init_00.0_00.0
+    │   │   ├── strob00.0_00.0
     │   │   │   ├── theta   (dataset)
-    │   │   │   └── p       (dataset)
-    │   │   └── init_01.0_00.0
+    │   │   │   ├── thetadot(dataset)
+    │   │   │   └── tau     (dataset)
+    │   │   ├── uniform00.0_00.0
+    │   │   │   ├── theta   (dataset)
+    │   │   │   ├── thetadot(dataset)
+    │   │   │   └── tau     (dataset)
+    │   │   └── strob01.0_00.0
     │   └── omega01.000
     │
     └── alpha01.00
@@ -50,8 +55,9 @@ Each HDF5 file follows the same logical hierarchy:
 Hierarchy semantics:
 - alphai   : one value of the control parameter alpha
 - omegaj   : one value of the drive frequency omega
-- init_k    : one initial condition
-- theta, p  : phase-space data
+- strob    : one initial condition, stroboscopic time steps
+- uniform  : one initial condition, uniform time steps
+- theta, thetadot : trajectory
 
 Physical parameter values are stored as ATTRIBUTES, not encoded in group names.
 
@@ -61,7 +67,7 @@ Metadata
 Important metadata are stored as HDF5 attributes.
 
 At the file level:
-- integrator   : numerical integrator used (e.g. "velocity_verlet")
+- integrator   : numerical integrator used (e.g. "velocity_verlet", "dop853")
 - data_type    : description of stored data
 - dt           : integration time step
 - *_units      : physical units of parameters
@@ -69,7 +75,7 @@ At the file level:
 At the group level:
 - alpha        : value of alpha
 - omega        : value of omega
-- theta0, p0   : initial conditions (for init_k groups)
+- theta0, thetadot0   : initial conditions (for strob and uniform groups)
 
 
 Basic Usage
@@ -90,9 +96,9 @@ List available alpha values:
 Load a single Poincaré section:
 
     >>> with h5py.File("poincare_trajectories.h5", "r") as f:
-    ...     grp = f["alpha_0/omega_3/init_0"]
+    ...     grp = f["alpha_0/omega_3/uniform0"]
     ...     theta = grp["theta"][:]
-    ...     p = grp["p"][:]
+    ...     thetadot = grp["thetadot"][:]
 
 Only the requested datasets are loaded into memory.
 
@@ -106,9 +112,9 @@ To loop over all stored data without exhausting memory:
     ...         alpha = grp_alpha.attrs["alpha"]
     ...         for grp_omega in grp_alpha.values():
     ...             omega = grp_omega.attrs["omega"]
-    ...             for grp_init in grp_omega.values():
-    ...                 theta = grp_init["theta"][:]
-    ...                 p = grp_init["p"][:]
+    ...             for grp in grp_omega.values():
+    ...                 theta = grp["theta"][:]
+    ...                 thetadot = grp["thetadot"][:]
     ...                 # analysis here
 
 
@@ -168,7 +174,7 @@ def create_or_overwrite_dataset(parent, name, data, attrs=None):
     return ds
 
 
-def setup_file(path, integrator, data_type, alphas, omegas, dt=0.05):
+def setup_file(path, integrator, data_type, alphas, omegas, dt=0):
     if os.path.isfile(path):
         print(f"{path} already exists. Skipping...")
         return
@@ -177,23 +183,23 @@ def setup_file(path, integrator, data_type, alphas, omegas, dt=0.05):
     with h5py.File(path, "w") as file:
         file.attrs["integrator"] = integrator
         file.attrs["data_type"] = data_type
-        file.attrs["dt"] = dt
-        file.attrs["dt_units"] = "seconds"
+        file.attrs["dtau"] = dtau
         file.attrs["alpha_units"] = "radians"
         file.attrs["omega_units"] = "rad/s"
         for alpha in alphas:
-            group = get_or_create_group(file, f"alpha{alpha:05.2f}", attrs={"alpha": np.deg2rad(alpha)})
+            group = get_or_create_group(file, f"alpha{np.rad2deg(alpha):05.2f}", attrs={"alpha": alpha})
             for omega in omegas:
-                grp = get_or_create_group(group, f"omega{omega:06.3f}", attrs={"omega": omega, "T": 2*np.pi/omega if omega != 0 else None})
+                grp = get_or_create_group(group, f"omega{omega:06.3f}", attrs={"omega": omega})
 
 if __name__ == "__main__":
-    alphas = [i for i in range(1,16)]
+    alphas_deg = [i for i in range(0,91)]
+    alphas_rad = np.deg2rad(alphas_deg)
     omegas = [i for i in range(1,11)]
 
-    setup_file("Data/trajectories.h5", "velocity_verlet", "Full trajectories, non-dissipative", alphas, omegas)
-    setup_file("Data/poincare_trajectories.h5", "velocity_verlet", "Poincare trajectories sampled at t = nT, non-dissipative", alphas, omegas)
-    setup_file("Data/dissip_trajectories.h5", "DOP853", "Full trajectories, dissipative", alphas, omegas)
-    setup_file("Data/dissip_poincare_trajectories.h5", "DOP853", "Poincare trajectories sampled at t = nT, dissipative", alphas, omegas)
+    setup_file("Data/trajectories.h5", "velocity_verlet", "non-dissipative", alphas_rad, omegas)
+    #setup_file("Data/poincare_trajectories.h5", "velocity_verlet", "Poincare trajectories sampled at t = nT, non-dissipative", alphas, omegas)
+    setup_file("Data/dissip_trajectories.h5", "DOP853", "dissipative", alphas_rad, omegas)
+    #setup_file("Data/dissip_poincare_trajectories.h5", "DOP853", "Poincare trajectories sampled at t = nT, dissipative", alphas, omegas)
 
 
     print("Done!")
