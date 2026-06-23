@@ -5,14 +5,16 @@ import matplotlib.pyplot as plt
 
 plots_dir = "Plots/strob_plots_varying_omega/gamma_0.5/theta0_30/"
 
-alphas_deg = range(0, 90, 1)
+#alphas_deg = range(21, 28, 1)
+alphas_deg = [51]
 
 with h5py.File("Data/dissip_trajectories.h5", "r") as file:
     for alpha in alphas_deg:
         alpha_grp = file[f"alpha{alpha:05.2f}"]
         omega_array = list()
         theta_array = list()
-        for omega_val in np.arange(1,10.01,0.02): 
+        #for omega_val in np.arange(1,10.01,0.02): 
+        for omega_val in np.arange(1,7.01,0.02): 
             omega_grp = alpha_grp[f"omega{omega_val:06.3f}"]
             omega = omega_grp.attrs["omega"]
             init_grp = omega_grp["init30.0_00.0_0.5"]
@@ -45,8 +47,8 @@ with h5py.File("Data/dissip_trajectories.h5", "r") as file:
                   "\n" rf"$\theta_0={np.rad2deg(theta0):.2f}^\circ,\, p_0={p0}$"
                   )
 
-        file_name = f"{plots_dir}{alpha:05.2f}.jpg"
-        plt.savefig(file_name, bbox_inches="tight", pad_inches=0.2)
-        print(file_name)
-        #plt.show()
+        #file_name = f"{plots_dir}{alpha:05.2f}.jpg"
+        #plt.savefig(file_name, bbox_inches="tight", pad_inches=0.2)
+        #print(file_name)
+        plt.show()
         plt.close()

@@ -8,10 +8,10 @@ data_file_path = f"Data/{dissip}trajectories.h5"
 phase_plots_path = "Plots/phase_plots/"
 time_plots_path = "Plots/time_series_plots/"
 
-# alphas = [i for i in range(16)]
-# omegas = [i for i in range(1,11)]
-alphas_deg = [53]
-omegas = np.arange(1.0, 10.01, 0.02)
+#alphas_deg = [i for i in range(49,67)]
+alphas_deg = [51]
+omegas = np.arange(4.0,5.01, 0.02)
+#omegas = [2.32,2.34,2.36]
 
 with h5py.File(data_file_path, "r") as file:
     for alpha_val in alphas_deg:
