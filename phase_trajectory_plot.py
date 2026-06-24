@@ -6,12 +6,12 @@ import h5py
 dissip = "dissip_"  # Valid values are either an empty string or "dissip_"
 data_file_path = f"Data/{dissip}trajectories.h5"
 phase_plots_path = "Plots/phase_plots/"
-time_plots_path = "Plots/time_series_plots/"
+time_plots_path = "Plots/time_series/"
 
 #alphas_deg = [i for i in range(49,67)]
-alphas_deg = [16]
+alphas_deg = [60]
 #omegas = np.arange(4.0,5.01, 0.02)
-omegas = [2.68]
+omegas = [5.80, 5.82]
 
 with h5py.File(data_file_path, "r") as file:
     for alpha_val in alphas_deg:
@@ -28,7 +28,8 @@ with h5py.File(data_file_path, "r") as file:
                 thetadot0 = init_grp.attrs["thetadot0"]
 
                 theta = init_grp["theta"][:]
-                theta = (np.array(theta) + np.pi) % (2*np.pi) - np.pi  #  Plotting theta in the range -pi to pi
+                #theta = (np.array(theta) + np.pi) % (2*np.pi) - np.pi  #  Plotting theta in the range -pi to pi
+                theta = theta - 2*np.pi * (np.mean(theta)//(2*np.pi))
                 thetadot = init_grp["thetadot"][:]
 
                 if "gamma" in init_grp.attrs.keys():
@@ -38,7 +39,7 @@ with h5py.File(data_file_path, "r") as file:
                 plt.figure(figsize=(10,7))
                 plt.plot(theta, thetadot, lw=0.2, alpha=0.4)
                 plt.xlabel(r"$\theta\,(rad)$")
-                plt.ylabel(r"$p_\theta\, (m^2 rad/s)$")
+                plt.ylabel(r"$\dot\theta\, (rad/s)$")
                 #plt.xlim(-np.pi, np.pi)
                 #plt.ylim(-np.pi, np.pi)
                 plt.title("Phase Space Trajectory\n"
@@ -50,7 +51,7 @@ with h5py.File(data_file_path, "r") as file:
                 plt.grid(True, which="minor", lw=0.5, alpha=0.5)
                 plt.minorticks_on()
 
-                #plt.savefig(phase_plots_path + dissip + file_name, bbox_inches="tight")
+                plt.savefig(phase_plots_path + dissip + file_name, bbox_inches="tight")
                 plt.show()
                 plt.close()
                 
@@ -64,6 +65,7 @@ with h5py.File(data_file_path, "r") as file:
                 plt.xlabel(r"$t\,(sec)$")
                 plt.ylabel(r"$\theta\,(rad)$")
                 #plt.ylim(-np.pi, np.pi)
+                #plt.xlim(1200, 1200 + 200*np.pi)
                 plt.title(r"$\theta\,vs. t$"
                           "\n"
                           rf"$\alpha={np.rad2deg(alpha):04.2f}^\circ\, \omega={omega:04.2f}\, \gamma={gamma}$"
@@ -71,7 +73,7 @@ with h5py.File(data_file_path, "r") as file:
                           rf"$\theta_0={np.rad2deg(theta0):04.1f}^\circ\, p_0={thetadot0:04.1f}$"
                           )
                 plt.grid(True, which="both")
-                #plt.savefig(time_plots_path + dissip + file_name, bbox_inches="tight")
+                plt.savefig(time_plots_path + dissip + file_name, bbox_inches="tight")
                 plt.show()
                 plt.close()
                 print(dissip + file_name + " Done")

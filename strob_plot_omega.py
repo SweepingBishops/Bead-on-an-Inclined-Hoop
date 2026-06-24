@@ -3,17 +3,17 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 
-plots_dir = "Plots/strob_plots_varying_omega/gamma_0.5/theta0_30/"
+plots_dir = "Plots/strob_plots_omega/gamma_0.5/theta0_30/"
 
-#alphas_deg = range(21, 28, 1)
-alphas_deg = [50]
+alphas_deg = range(0, 90, 1)
+#alphas_deg = [50]
 
 with h5py.File("Data/dissip_trajectories.h5", "r") as file:
     for alpha in alphas_deg:
         alpha_grp = file[f"alpha{alpha:05.2f}"]
         omega_array = list()
         theta_array = list()
-        for omega_val in np.arange(1,10.01,0.02): 
+        for omega_val in np.arange(1,6,0.02): 
             omega_grp = alpha_grp[f"omega{omega_val:06.3f}"]
             omega = omega_grp.attrs["omega"]
             trjy_grp = omega_grp["uniform30.0_00.0_0.5"]
@@ -31,15 +31,16 @@ with h5py.File("Data/dissip_trajectories.h5", "r") as file:
         plt.scatter(omega_array, theta_array, s=0.1, color="black")
         plt.xlabel(r"$\omega\,(rad/s)$")
         plt.ylabel("Stroboscopic sampling of " + r"$\theta(t=nT)$")
+        plt.ylim(-np.pi, np.pi)
         plt.title("Stroboscopic "
                   r"$\theta$" " vs. " r"$\omega$"
                   #"\n" rf"$\alpha={alpha:05.2f}^\circ,\,gamma={init_grp.attrs['gamma']}$"
                   "\n" rf"$\alpha={alpha:05.2f}^\circ\quad \gamma=0.5$"
-                  "\n" rf"$\theta_0={np.rad2deg(theta0):.2f}^\circ,\, p_0={p0}$"
+                  "\n" rf"$\theta_0={np.rad2deg(theta0):.2f}^\circ,\, \dot{theta}_0={thetadot0}$"
                   )
 
-        #file_name = f"{plots_dir}{alpha:05.2f}.jpg"
-        #plt.savefig(file_name, bbox_inches="tight", pad_inches=0.2)
-        #print(file_name)
-        plt.show()
+        file_name = f"{plots_dir}{alpha:05.2f}.jpg"
+        plt.savefig(file_name, bbox_inches="tight", pad_inches=0.2)
+        print(file_name)
+        #plt.show()
         plt.close()

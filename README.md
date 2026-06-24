@@ -16,16 +16,21 @@ Each HDF5 file follows the same logical hierarchy:
     │   ├── dt
     │   ├── dt_units
     │   ├── alpha_units
-    │   ├── omega_units
+    │   └── omega_units
     │
     ├── alpha00.00
     │   ├── (attrs: alpha)
     │   ├── omega00.000
     │   │   ├── (attrs: omega)
-    │   │   ├── init_00.0_00.0
+    │   │   ├── strob00.0_00.0
     │   │   │   ├── theta   (dataset)
-    │   │   │   └── p       (dataset)
-    │   │   └── init_01.0_00.0
+    │   │   │   ├── thetadot(dataset)
+    │   │   │   └── tau     (dataset)
+    │   │   ├── uniform00.0_00.0
+    │   │   │   ├── theta   (dataset)
+    │   │   │   ├── thetadot(dataset)
+    │   │   │   └── tau     (dataset)
+    │   │   └── strob01.0_00.0
     │   └── omega01.000
     │
     └── alpha01.00
@@ -33,12 +38,16 @@ Each HDF5 file follows the same logical hierarchy:
 
 See the documentation in `storage_setup.py` for more details.
 
-Run the `param_scan` function from `parameter_scan.py` is what actually solves all the trajectories.
+The `param_scan` function from `parameter_scan.py` is what actually solves all the trajectories.
 It is recommended to use the helper script in `solve_trajectories.py`, just change the parameter values as required.
 
-Note that stroboscopic trajectores are written to `*poincare_trajectories.h5` and trajectories with a damping are
-written to `dissip*`.
+This is outdated:
+> Note that stroboscopic trajectores are written to `*poincare_trajectories.h5` and trajectories with a damping are
+> written to `dissip*`.
 
-For drawing plots use `phase_trajectory_plot.py` for phase and time-series plots, `poincare_plots.py`,
+All trajectories are now uniformly time-stepped. Use the `samples_per_period` attribute of the trajectory group to
+construct a stroboscopic/Poincaré maps. For example: if `samples_per_period`=64, use `dataset[::64]`.
+
+For drawing plots use `phase_trajectory_plot.py`, `poincare_plots.py`,
 `strob_plot_alpha.py`, and `strob_plot_omega.py`. There will be list of alpha and omega values to plot
-for at the beginning of each file.
+for at the beginning of each file. Edit those as necessary.
